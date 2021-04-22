@@ -1,15 +1,15 @@
-const express = require('express')
-const app = express()
-const port = process.env.PORT || 3000
+const express = require("express");
+const app = express();
+const port = process.env.PORT || 3000;
+let result = {
+  Student: "Maarten de Zwart",
+  Studentnummer: 2176137,
+  Description: "Ik ben een student op Avans",
+};
 
-app.get('/', (req, res) => {
-
-    res.status(200).json('Helllo world!').end()
-
-})
-    let result = {
-        "response": "hi",
-        "status": "ok", }
+app.get("/api/info", (req, res) => {
+  res.status(200).json(result).end();
+});
 app.listen(port, () => {
-    console.log(result)
-})
+  console.log(`Server running at http://:${port}/`);
+});
