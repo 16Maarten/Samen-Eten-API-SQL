@@ -1,0 +1,20 @@
+{
+  "name": "nodejs-samen-eten-server",
+  "version": "1.0.0",
+  "description": "Project programmeren 4",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "Javascript",
+    "programmeren_4",
+    "server"
+  ],
+  "author": "Maarten",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
