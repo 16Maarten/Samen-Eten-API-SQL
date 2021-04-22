@@ -1,11 +1,15 @@
 const express = require('express')
 const app = express()
-const port = 3000
+const port = process.env.PORT || 3000
 
 app.get('/', (req, res) => {
-  res.status(200).json('Hello World!')
-})
 
+    res.status(200).json('Helllo world!').end()
+
+})
+    let result = {
+        "response": "hi",
+        "status": "ok", }
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
+    console.log(result)
 })
