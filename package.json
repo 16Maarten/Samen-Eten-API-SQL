@@ -4,7 +4,7 @@
   "description": "Project programmeren 4",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 0",
+    "test": "mocha -reporter spec test/**/test.js --exit",
     "start": "node server.js"
   },
   "keywords": [
@@ -17,5 +17,10 @@
   "dependencies": {
     "express": "^4.17.1",
     "tracer": "^1.1.4"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "chai-http": "^4.3.0",
+    "mocha": "^8.3.2"
   }
 }

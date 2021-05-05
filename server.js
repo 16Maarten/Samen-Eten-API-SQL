@@ -1,12 +1,16 @@
 const express = require("express");
 const logger = require("tracer").colorConsole();
-const authentication = require("./routers/authenticationRouter.js");
+const authentication = require("./scr/routers/authenticationRouter.js");
+const studenthome = require("./scr/routers/studenthomeRouter.js");
 
 const app = express();
+app.use(express.json())
 const port = process.env.PORT || 3000;
 
 // Authenticatie | UC-101 t/m UC-103
 app.use("/api", authentication);
+//studenthome | UC-201 t/m UC-206
+app.use("/api/studenthome", studenthome)
 
 // Generic handler
 app.all( "*", (req, res, next) => {
