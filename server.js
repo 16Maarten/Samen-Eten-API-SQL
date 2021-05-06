@@ -43,3 +43,5 @@ app.use((error, req, res, next) => {
 app.listen(port, () => {
   logger.log(`Example app listening at http://localhost:${port}`);
 });
+
+module.exports = app;

@@ -3,26 +3,41 @@ let db = require("../DAO/database");
 
 let controller = {
   // UC-201 Maak studentenhuis
-  createStudenthome(req, res) {
+  createStudenthome(req, res, next) {
     logger.info("Studenthome endpoint called");
     const studenthome = req.body;
     logger.info("Studenthome body: " + studenthome);
     db.add(studenthome, (result, err) => {
       if (err) {
-        res.status(400).json(err);
+        next(err)
       }
       if (result) {
         logger.debug(db.db);
         logger.debug("StudentHome added to database");
-        res.json(studenthome.name + " has been added to the database with id:");
+        res.status(200).json({ status: "success", Studenthome: result.name, id: result.id });
       }
     });
   },
 
   // UC-202 Overzicht van studentenhuizen
-  getStudenthome(req, res) {
+  getStudenthome(req, res, next) {
+    const name = req.query.name;
+    const city = req.query.city;
+    logger.info("Name: " + name + " City: " + city);
     logger.info("Studenthome endpoint called");
-    res.status(200).send(result);
+    db.get(name,city, (result, err) => {
+      if (err) {
+        next(err)
+      }
+      if (result) {
+        let studenthomes = []
+        for(let i = 0; i < result.length; i++) {
+          studenthomes.push({Studenthome: result[i].name, id: result[i].id})
+          logger.debug("Studenthome: "+ result[i].name +" id: " + result[i].id);
+        }
+        res.status(200).json({ status: "success", studenthomes });
+      }
+    });
   },
 
   // UC-203 Details van studentenhuis
