@@ -7,7 +7,7 @@ let controller = {
     logger.info("Studenthome endpoint called");
     const studenthome = req.body;
     logger.info("Studenthome body: " + studenthome);
-    db.add(studenthome, (result, err) => {
+    db.addStudenthome(studenthome, (result, err) => {
       if (err) {
         next(err);
       }
@@ -25,7 +25,7 @@ let controller = {
     const city = req.query.city;
     logger.info("Name: " + name + " City: " + city);
     logger.info("Studenthome endpoint called");
-    db.get(name, city, (result, err) => {
+    db.getStudenthome(name, city, (result, err) => {
       if (err) {
         next(err);
       }
@@ -44,10 +44,10 @@ let controller = {
 
   // UC-203 Details van studentenhuis
   getDetailStudenthome(req, res, next) {
-    const id = req.params.homeId;
-    logger.debug(id);
+    const id = req.params.homeId
+    logger.debug(id)
     logger.info("Studenthome/:homeId endpoint called");
-    db.getDetailed(id, (result, err) => {
+    db.getDetailedStudenthome(id, (result, err) => {
       if (err) {
         next(err);
       }
@@ -59,18 +59,18 @@ let controller = {
   },
 
   // UC-204 Studentenhuis wijzigen
-  updateStudenthome(req, res) {
+  updateStudenthome(req, res, next) {
     logger.info("Studenthome/:homeId endpoint called");
     const id = req.params.homeId;
     let studenthome = req.body;
     logger.debug(id);
-    db.delete(id, (result, err) => {
+    db.deleteStudenthome(id, (result, err) => {
       if (err) {
         next(err);
       }
       if (result) {
         studenthome.id = id
-        db.add(studenthome, (result2, err2) => {
+        db.addStudenthome(studenthome, (result2, err2) => {
           if (err2) {
             next(err2);
           }
@@ -86,11 +86,11 @@ let controller = {
   },
 
   // UC-205 Studentenhuis verwijderen
-  deleteStudenthome(req, res) {
+  deleteStudenthome(req, res, next) {
     const id = req.params.homeId;
     logger.debug(id);
     logger.info("Studenthome/:homeId endpoint called");
-    db.delete(id, (result, err) => {
+    db.deleteStudenthome(id, (result, err) => {
       if (err) {
         next(err);
       }
@@ -102,7 +102,7 @@ let controller = {
   },
 
   // UC-206 Gebruiker toevoegen aan studentenhuis
-  addUserStudenthome(req, res) {
+  addUserStudenthome(req, res, next) {
     logger.info("Studenthome/:homeId/user endpoint called");
     res.status(200).send(result);
   },
