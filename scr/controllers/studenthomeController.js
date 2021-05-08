@@ -6,19 +6,19 @@ let controller = {
   validateStudentHome(req, res, next) {
     try {
       const {name,streetName,houseNumber,postalCode, city,phoneNumber} = req.body;
-      assert(typeof name === "string", "Invalid or missing name");
-      assert(typeof streetName === "string", "Invalid or missing streetName");
-      assert(typeof houseNumber === "number", "Invalid or missing houseNumber");
-      assert(typeof postalCode === "string", "Invalid or missing postalCode");
-      assert(typeof city === "string", "Invalid or missing city");
-      assert(typeof phoneNumber === "string", "Invalid or missing phoneNumber");
+      assert(typeof name === "string", "Invalid or missing name")
+      assert(typeof streetName === "string", "Invalid or missing streetName")
+      assert(typeof houseNumber === "number", "Invalid or missing houseNumber")
+      assert(typeof postalCode === "string", "Invalid or missing postalCode")
+      assert(typeof city === "string", "Invalid or missing city")
+      assert(typeof phoneNumber === "string", "Invalid or missing phoneNumber")
 
       const validatePostalCode = /^(?:NL-)?(\d{4})\s*([A-Z]{2})$/i;
-      assert(validatePostalCode.test(postalCode), "Invalid postalCode");
+      assert(validatePostalCode.test(postalCode), "Invalid postalCode")
 
       const validationPhoneNumber = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
-      assert(validationPhoneNumber.test(phoneNumber), "Invalid phoneNumber");
-      
+      assert(validationPhoneNumber.test(phoneNumber), "Invalid phoneNumber")
+
       if(!req.params.homeId){
       let studenthome = {city,streetName,houseNumber}
 
@@ -32,7 +32,7 @@ let controller = {
       next()
     } catch (err) {
       logger.error("StudentHome data is Invalid: ", err.message);
-      next({ message: err.message, errCode: 400 });
+      next({ message: err.message, errCode: 400 })
     }
   },
   // UC-201 Maak studentenhuis

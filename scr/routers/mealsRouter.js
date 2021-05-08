@@ -3,9 +3,9 @@ const router = express.Router();
 const mealsController = require("../controllers/mealsController");
 
 // UC-301 Maaltijd aanmaken
-router.post("/:homeId/meal", mealsController.createStudenthomeMeal);
+router.post("/:homeId/meal",mealsController.validateStudentHomeMeal, mealsController.createStudenthomeMeal);
 // UC-302 Maaltijd wijzigen
-router.put("/:homeId/meal/:mealId", mealsController.updateStudenthomeMeal);
+router.put("/:homeId/meal/:mealId",mealsController.validateStudentHomeMeal, mealsController.updateStudenthomeMeal);
 // UC-303 Lijst van maaltijden opvragen
 router.get("/:homeId/meal", mealsController.getStudenthomeMeals);
 // UC-304 Details van een maaltijd opvragen

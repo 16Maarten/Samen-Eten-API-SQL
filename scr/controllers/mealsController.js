@@ -1,7 +1,31 @@
 const logger = require("tracer").colorConsole();
+const assert = require("assert");
 let db = require("../DAO/database");
 
 let controller = {
+
+  validateStudentHomeMeal(req, res, next) {
+    try {
+      const {mealName,description,servingDate,price, allergicInformation,ingredients} = req.body;
+      assert(typeof mealName === "string", "Invalid or missing mealName")
+      assert(typeof description === "string", "Invalid or missing description")
+      assert(typeof price === "string", "Invalid or missing price")
+      assert(typeof allergicInformation === "string", "Invalid or missing allergicInformation")
+      assert(Array.isArray(ingredients), "Invalid or missing ingredients")
+
+      assert(!(servingDate instanceof Date),"Invalid or missing servingDate")
+
+      const validationPrice = /^[0-9]\d*(((,\d{3}){1})?(\.\d{0,2})?)$/
+      assert(validationPrice.test(price), "price was invalid")
+
+      
+      next()
+    } catch (err) {
+      logger.error("StudentHomeMeal data is Invalid: ", err.message);
+      next({ message: err.message, errCode: 400 })
+    }
+  },
+
   //UC-301 Maaltijd aanmaken
   createStudenthomeMeal(req, res, next) {
     const id = req.params.homeId
@@ -41,6 +65,7 @@ let controller = {
           if (result2) {
             logger.debug(db.db);
             logger.debug("Meal added to database");
+            logger.debug(meal)
             meal = result2;
             res
               .status(200)

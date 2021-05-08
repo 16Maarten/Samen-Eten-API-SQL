@@ -47,8 +47,6 @@ let database = {
     }
   },
 
-  
-
   getDetailedStudenthome(id, callback) {
     let detailedStudenthome = this.db.filter((e) => {
       return e.id == id;
@@ -104,6 +102,7 @@ let database = {
     logger.debug("studenthome: "+studenthome[0])
     let studenthomeIndex = this.db.indexOf(studenthome[0])
     if(!item.id){
+      item.creationDate = new Date()
       item.id = lastInsertedMealIndex++;
     }
     setTimeout(() => {
@@ -137,7 +136,7 @@ let database = {
       } else {
         let err = {
           message: "meal id doesn't exist",
-          errCode: 400,
+          errCode: 404,
         };
         if (homeId) {
           err.message += " id: " + mealId;
@@ -147,7 +146,7 @@ let database = {
     } else {
       let err = {
         message: "Studenthome id doesn't exist",
-        errCode: 400,
+        errCode: 404,
       };
       if (homeId) {
         err.message += " id: " + homeId;
@@ -171,7 +170,7 @@ let database = {
       } else {
         let err = {
           message: "meal id doesn't exist",
-          errCode: 400,
+          errCode: 404,
         };
         if (homeId) {
           err.message += " id: " + mealId;
@@ -181,7 +180,7 @@ let database = {
     } else {
       let err = {
         message: "Studenthome id doesn't exist",
-        errCode: 400,
+        errCode: 404,
       };
       if (homeId) {
         err.message += " id: " + homeId;
