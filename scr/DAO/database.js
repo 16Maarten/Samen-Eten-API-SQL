@@ -6,8 +6,8 @@ let database = {
   db: [{
     name: "Studentenhuis Breda",
     streetName: "Lovensdijkstraat",
-    houseNumber: "45",
-    postalcode: "3425FK",
+    houseNumber: 45,
+    postalCode: "3425FK",
     city: "Breda",
     phoneNumber: "0656341298",
     id: 0,
@@ -35,7 +35,7 @@ let database = {
     } else {
       let err = {
         message: "Studenthome doesn't exist",
-        errCode: 400,
+        errCode: 404,
       };
       if (name) {
         err.message += " name: " + name;
@@ -58,7 +58,7 @@ let database = {
     } else {
       let err = {
         message: "Studenthome id doesn't exist",
-        errCode: 400,
+        errCode: 404,
       };
       if (id) {
         err.message += " id: " + id;
@@ -78,7 +78,7 @@ let database = {
     } else {
       let err = {
         message: "Studenthome id doesn't exist",
-        errCode: 400,
+        errCode: 404,
       };
       if (id) {
         err.message += " id: " + id;

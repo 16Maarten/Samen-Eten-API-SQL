@@ -3,13 +3,13 @@ const router = express.Router();
 const studenthomeController = require("../controllers/studenthomeController");
 
 // UC-201 Maak studentenhuis
-router.post("", studenthomeController.createStudenthome);
+router.post("", studenthomeController.validateStudentHome,studenthomeController.createStudenthome);
 // UC-202 Overzicht van studentenhuizen
 router.get("", studenthomeController.getStudenthome);
 // UC-203 Details van studentenhuis
 router.get("/:homeId", studenthomeController.getDetailStudenthome);
 // UC-204 Studentenhuis wijzigen
-router.put("/:homeId", studenthomeController.updateStudenthome);
+router.put("/:homeId", studenthomeController.validateStudentHome, studenthomeController.updateStudenthome);
 // UC-205 Studentenhuis verwijderen
 router.delete("/:homeId", studenthomeController.deleteStudenthome);
 // UC-206 Gebruiker toevoegen aan studentenhuis
