@@ -18,7 +18,6 @@ let controller = {
       const validationPrice = /^[0-9]\d*(((,\d{3}){1})?(\.\d{0,2})?)$/
       assert(validationPrice.test(price), "price was invalid")
 
-      
       next()
     } catch (err) {
       logger.error("StudentHomeMeal data is Invalid: ", err.message);

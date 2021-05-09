@@ -31,14 +31,13 @@ let controller = {
     }
       next()
     } catch (err) {
-      logger.error("StudentHome data is Invalid: ", err.message);
       next({ message: err.message, errCode: 400 })
     }
   },
   // UC-201 Maak studentenhuis
   createStudenthome(req, res, next) {
     logger.info("Studenthome endpoint called");
-    const studenthome = req.body;
+    let studenthome = req.body;
     logger.info("Studenthome body: " + studenthome);
     db.addStudenthome(studenthome, (result, err) => {
       if (err) {
@@ -47,9 +46,10 @@ let controller = {
       if (result) {
         logger.debug(db.db);
         logger.debug("StudentHome added to database");
+        studenthome = result
         res
           .status(200)
-          .json({ status: "success", Studenthome: result.name, id: result.id });
+          .json({ status: "success", studenthome });
       }
     });
   },
@@ -58,6 +58,10 @@ let controller = {
   getStudenthome(req, res, next) {
     const name = req.query.name;
     const city = req.query.city;
+    let studenthomes = [];
+    if(!name && !city){
+      res.status(200).json({ status: "success", studenthomes });
+    }
     logger.info("Name: " + name + " City: " + city);
     logger.info("Studenthome endpoint called");
     db.getStudenthome(name, city, (result, err) => {
@@ -65,7 +69,6 @@ let controller = {
         next(err);
       }
       if (result) {
-        let studenthomes = [];
         for (let i = 0; i < result.length; i++) {
           studenthomes.push({ Studenthome: result[i].name, id: result[i].id });
           logger.debug(

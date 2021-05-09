@@ -1,5 +1,5 @@
 const logger = require("tracer").colorConsole();
-let lastInsertedIndex = 1;
+let lastInsertedIndex = 2;
 let lastInsertedMealIndex = 1;
 
 let database = {
@@ -17,7 +17,27 @@ let database = {
         description:"italian food",
         creationDate:"12-10-2021",
         servingDate:"12-12-2021",
-        price:"2,50",
+        price:"2.50",
+        allergicInformation:"tomatoes",
+        ingredients: ["pasta","tomatoes"],
+        id:0
+      }
+    ]
+  },{
+    name: "Studentenhuis Breda",
+    streetName: "Lovensdijkstraat",
+    houseNumber: 46,
+    postalCode: "3425FK",
+    city: "Breda",
+    phoneNumber: "0656341298",
+    id: 1,
+    meals : [
+      {
+        mealName:"spaghettie",
+        description:"italian food",
+        creationDate:"12-10-2021",
+        servingDate:"12-12-2021",
+        price:"2.50",
         allergicInformation:"tomatoes",
         ingredients: ["pasta","tomatoes"],
         id:0
@@ -86,13 +106,12 @@ let database = {
   },
 
   addStudenthome(item, callback) {
-    setTimeout(() => {
       if(!item.id){
-        item.id = lastInsertedIndex++;
+        item.id = lastInsertedIndex++
+        item.meals = []
       }
-      this.db.push(item);
-      callback(item, undefined);
-    }, 2000);
+      this.db.push(item)
+      callback(item, undefined)
   },
 
   addStudenthomeMeal(homeId, item, callback) {
@@ -105,10 +124,8 @@ let database = {
       item.creationDate = new Date()
       item.id = lastInsertedMealIndex++;
     }
-    setTimeout(() => {
       this.db[studenthomeIndex].meals.push(item)
       callback(item, undefined);
-    }, 2000);
   },
 
   getStudenthomeMeal(homeId, callback) {
@@ -118,9 +135,7 @@ let database = {
     logger.debug("studentHome: " +Studenthome[0])
     const meals = Studenthome[0].meals
     logger.debug(meals)
-    setTimeout(() => {
       callback(meals, undefined);
-    }, 2000);
   },
 
   getDetailedStudenthomeMeal(homeId,mealId, callback) {
