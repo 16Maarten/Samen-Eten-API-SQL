@@ -31,7 +31,8 @@ testing:
   stage: test
   image: node:latest
   script:
-    - npm run test
+    - npm run coverage
+    - npm run sonar
   only:
     - master
 #

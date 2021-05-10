@@ -137,13 +137,13 @@ describe("StudentHome", function () {
   
             res.body.should.be.an("object").that.has.all.keys("status", "studenthome");
             let { status, studenthome } = res.body;
-            status.should.be.an("string").that.contains("success")
+            status.should.be.a("string").that.contains("success")
             studenthome.should.be.an("object")
             done()
           })
       })
 
-      it("TC-202-1 |Responsestatus HTTP code 200Response bevat JSON object met lege lijst.", (done) => {
+      it("TC-202-1 | Responsestatus HTTP code 200Response bevat JSON object met lege lijst.", (done) => {
         chai
           .request(server)
           .get("/api/studenthome")
@@ -155,7 +155,7 @@ describe("StudentHome", function () {
             res.body.should.be.an("object").that.has.all.keys("status", "studenthomes");
             let { status, studenthomes } = res.body;
             status.should.be.an("string").that.contains("success")
-            studenthomes.should.be.an("array").that.has.lengthOf(0)
+            studenthomes.should.be.an("array").that.has.a.lengthOf(0)
             done()
           })
       })
