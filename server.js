@@ -1,8 +1,8 @@
 const express = require("express");
 const logger = require("tracer").colorConsole();
-const authentication = require("./scr/routers/authenticationRouter.js");
-const studenthome = require("./scr/routers/studenthomeRouter.js");
-const meals = require("./scr/routers/mealsRouter.js");
+const authentication = require("./src/routers/authenticationRouter.js");
+const studenthome = require("./src/routers/studenthomeRouter.js");
+const meals = require("./src/routers/mealsRouter.js");
 
 const app = express();
 app.use(express.json())

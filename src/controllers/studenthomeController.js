@@ -61,7 +61,7 @@ let controller = {
     let studenthomes = [];
     if(!name && !city){
       res.status(200).json({ status: "success", studenthomes });
-    }
+    } else {
     logger.info("Name: " + name + " City: " + city);
     logger.info("Studenthome endpoint called");
     db.getStudenthome(name, city, (result, err) => {
@@ -78,6 +78,7 @@ let controller = {
         res.status(200).json({ status: "success", studenthomes });
       }
     });
+  }
   },
 
   // UC-203 Details van studentenhuis

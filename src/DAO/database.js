@@ -48,7 +48,7 @@ let database = {
 
   getStudenthome(name, city, callback) {
     let filteredStudenthome = this.db.filter((e) => {
-      return e.name == name && e.city == city;
+      return e.name == name||e.city == city||(e.name == name && e.city == city)
     });
     if (filteredStudenthome.length > 0) {
       callback(filteredStudenthome, undefined);
