@@ -5,33 +5,48 @@ let db = require("../DAO/database");
 let controller = {
   validateStudentHome(req, res, next) {
     try {
-      const {name,streetName,houseNumber,postalCode, city,phoneNumber} = req.body;
-      assert(typeof name === "string", "Invalid or missing name")
-      assert(typeof streetName === "string", "Invalid or missing streetName")
-      assert(typeof houseNumber === "number", "Invalid or missing houseNumber")
-      assert(typeof postalCode === "string", "Invalid or missing postalCode")
-      assert(typeof city === "string", "Invalid or missing city")
-      assert(typeof phoneNumber === "string", "Invalid or missing phoneNumber")
+      const {
+        name,
+        streetName,
+        houseNumber,
+        postalCode,
+        city,
+        phoneNumber,
+      } = req.body;
+      assert(typeof name === "string", "Invalid or missing name");
+      assert(typeof streetName === "string", "Invalid or missing streetName");
+      assert(typeof houseNumber === "number", "Invalid or missing houseNumber");
+      assert(typeof postalCode === "string", "Invalid or missing postalCode");
+      assert(typeof city === "string", "Invalid or missing city");
+      assert(typeof phoneNumber === "string", "Invalid or missing phoneNumber");
 
       const validatePostalCode = /^(?:NL-)?(\d{4})\s*([A-Z]{2})$/i;
-      assert(validatePostalCode.test(postalCode), "Invalid postalCode")
+      assert(validatePostalCode.test(postalCode), "Invalid postalCode");
 
       const validationPhoneNumber = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
-      assert(validationPhoneNumber.test(phoneNumber), "Invalid phoneNumber")
+      assert(validationPhoneNumber.test(phoneNumber), "Invalid phoneNumber");
 
-      if(!req.params.homeId){
-      let studenthome = {city,streetName,houseNumber}
+      if (!req.params.homeId) {
+        let studenthome = { city, streetName, houseNumber };
 
-      db.db.forEach((e) => {
-        let studenthome2 = {city: e.city,streetName: e.streetName,houseNumber: e.houseNumber}
-        logger.debug(studenthome)
-        logger.debug(studenthome2)
-        assert.notDeepStrictEqual(studenthome,studenthome2,"Studenthome already exists")
-      });
-    }
-      next()
+        db.db.forEach((e) => {
+          let studenthome2 = {
+            city: e.city,
+            streetName: e.streetName,
+            houseNumber: e.houseNumber,
+          };
+          logger.debug(studenthome);
+          logger.debug(studenthome2);
+          assert.notDeepStrictEqual(
+            studenthome,
+            studenthome2,
+            "Studenthome already exists"
+          );
+        });
+      }
+      next();
     } catch (err) {
-      next({ message: err.message, errCode: 400 })
+      next({ message: err.message, errCode: 400 });
     }
   },
   // UC-201 Maak studentenhuis
@@ -46,10 +61,8 @@ let controller = {
       if (result) {
         logger.debug(db.db);
         logger.debug("StudentHome added to database");
-        studenthome = result
-        res
-          .status(200)
-          .json({ status: "success", studenthome });
+        studenthome = result;
+        res.status(200).json({ status: "success", studenthome });
       }
     });
   },
@@ -59,26 +72,34 @@ let controller = {
     const name = req.query.name;
     const city = req.query.city;
     let studenthomes = [];
-    if(!name && !city){
+    if (!name && !city) {
       res.status(200).json({ status: "success", studenthomes });
     } else {
-    logger.info("Name: " + name + " City: " + city);
-    logger.info("Studenthome endpoint called");
-    db.getStudenthome(name, city, (result, err) => {
-      if (err) {
-        next(err);
-      }
-      if (result) {
-        for (let i = 0; i < result.length; i++) {
-          studenthomes.push({ Studenthome: result[i].name, id: result[i].id });
-          logger.debug(
-            "Studenthome: " + result[i].name + " id: " + result[i].id
-          );
+      logger.info("Name: " + name + " City: " + city);
+      logger.info("Studenthome endpoint called");
+      db.getStudenthome(name, city, (result, err) => {
+        if (err) {
+          next(err);
         }
-        res.status(200).json({ status: "success", studenthomes });
-      }
-    });
-  }
+        if (result) {
+          for (let i = 0; i < result.length; i++) {
+            studenthomes.push({
+              name: result[i].name,
+              streetName: result[i].streetName,
+              houseNumber: result[i].houseNumber,
+              postalCode: result[i].postalCode,
+              city: result[i].city,
+              phoneNumber: result[i].phoneNumber,
+              id: result[i].id,
+            });
+            logger.debug(
+              "Studenthome: " + result[i].name + " id: " + result[i].id
+            );
+          }
+          res.status(200).json({ status: "success", studenthomes });
+        }
+      });
+    }
   },
 
   // UC-203 Details van studentenhuis
@@ -100,26 +121,34 @@ let controller = {
   // UC-204 Studentenhuis wijzigen
   updateStudenthome(req, res, next) {
     logger.info("Studenthome/:homeId endpoint called");
-    const id = req.params.homeId;
+    let homeId = parseInt(req.params.homeId);
     let studenthome = req.body;
-    logger.debug(id);
-    db.deleteStudenthome(id, (result, err) => {
+    logger.debug(homeId);
+    db.getDetailedStudenthome(homeId, (result, err) => {
       if (err) {
+        err.errCode = 400
         next(err);
       }
       if (result) {
-        studenthome.id = id;
-        db.addStudenthome(studenthome, (result2, err2) => {
+        db.deleteStudenthome(homeId, (result2, err2) => {
           if (err2) {
             next(err2);
           }
           if (result2) {
-            logger.debug(db.db);
-            logger.debug("StudentHome added to database");
-            studenthome = result2;
-            res
-              .status(200)
-              .json({ status: "success", studenthome, message: "updated" });
+            studenthome.id = homeId
+            studenthome.meals = result.meals
+            db.addStudenthome(studenthome,(result3, err3) => {
+                if (err3) {
+                  next(err3);
+                }
+                if (result3) {
+                  logger.debug(db.db);
+                  logger.debug("StudentHome added to database");
+                  studenthome = result3;
+                  res.status(200).json({status: "success",studenthome,
+                  });
+                }
+              });
           }
         });
       }
@@ -136,8 +165,9 @@ let controller = {
         next(err);
       }
       if (result) {
+        let studenthome = result
         logger.info(result);
-        res.status(200).send({ status: "success", result });
+        res.status(200).send({ status: "success", studenthome });
       }
     });
   },

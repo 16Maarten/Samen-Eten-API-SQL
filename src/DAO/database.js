@@ -106,7 +106,8 @@ let database = {
   },
 
   addStudenthome(item, callback) {
-      if(!item.id){
+    logger.debug("item id:"+ item.id)
+      if(typeof item.id == "undefined"){
         item.id = lastInsertedIndex++
         item.meals = []
       }
