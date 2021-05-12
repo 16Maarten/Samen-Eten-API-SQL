@@ -82,20 +82,7 @@ let controller = {
           next(err);
         }
         if (result) {
-          for (let i = 0; i < result.length; i++) {
-            studenthomes.push({
-              name: result[i].name,
-              streetName: result[i].streetName,
-              houseNumber: result[i].houseNumber,
-              postalCode: result[i].postalCode,
-              city: result[i].city,
-              phoneNumber: result[i].phoneNumber,
-              id: result[i].id,
-            });
-            logger.debug(
-              "Studenthome: " + result[i].name + " id: " + result[i].id
-            );
-          }
+          studenthomes = result
           res.status(200).json({ status: "success", studenthomes });
         }
       });
