@@ -1,8 +1,8 @@
 const logger = require("tracer").colorConsole();
 let lastInsertedIndex = 2;
 let lastInsertedMealIndex = 1;
-const pool = require("./database_pool");
-const config = require("./database_config");
+const pool = require("./databasePool");
+const config = require("./databaseConfig");
 
 let database = {
   getStudenthome(name, city, callback) {

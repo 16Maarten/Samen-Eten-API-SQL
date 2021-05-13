@@ -1,6 +1,6 @@
 const mysql = require('mysql')
-const logger = require('./database_config').logger
-const dbconfig = require('./database_config').dbconfig
+const logger = require('./databaseConfig').logger
+const dbconfig = require('./databaseConfig').dbconfig
 
 const pool = mysql.createPool(dbconfig)
 
