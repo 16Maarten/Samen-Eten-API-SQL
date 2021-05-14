@@ -10,9 +10,9 @@ router.get("", studenthomeController.getStudenthome);
 // UC-203 Details van studentenhuis
 router.get("/:homeId", studenthomeController.getDetailStudenthome);
 // UC-204 Studentenhuis wijzigen
-router.put("/:homeId", studenthomeController.validateStudentHome, studenthomeController.updateStudenthome);
+router.put("/:homeId",authenticationController.validateToken, studenthomeController.validateStudentHome, studenthomeController.updateStudenthome);
 // UC-205 Studentenhuis verwijderen
-router.delete("/:homeId", studenthomeController.deleteStudenthome);
+router.delete("/:homeId",authenticationController.validateToken, studenthomeController.deleteStudenthome);
 // UC-206 Gebruiker toevoegen aan studentenhuis
-router.put("/:homeId/user", studenthomeController.createStudenthome);
+router.put("/:homeId/user",authenticationController.validateToken, studenthomeController.createStudenthome);
 module.exports = router;
