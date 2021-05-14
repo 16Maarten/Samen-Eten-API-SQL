@@ -9,14 +9,14 @@ let controller = {
       const {mealName,description,servingDate,price, allergicInformation,ingredients} = req.body;
       assert(typeof mealName === "string", "Invalid or missing mealName")
       assert(typeof description === "string", "Invalid or missing description")
-      assert(typeof price === "string", "Invalid or missing price")
+      assert(typeof price === "number", "Invalid or missing price")
       assert(typeof allergicInformation === "string", "Invalid or missing allergicInformation")
       assert(Array.isArray(ingredients), "Invalid or missing ingredients")
 
       assert(!(servingDate instanceof Date),"Invalid or missing servingDate")
 
       const validationPrice = /^[0-9]\d*(((,\d{3}){1})?(\.\d{0,2})?)$/
-      assert(validationPrice.test(price), "price was invalid")
+      assert(validationPrice.test(price), "price is invalid")
 
       next()
     } catch (err) {
