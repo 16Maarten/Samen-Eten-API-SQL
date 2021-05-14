@@ -1,49 +1,31 @@
 const logger = require("tracer").colorConsole();
 const assert = require("assert");
-let db = require("../DAO/database");
+let db = require("../DAO/databaseStudenthome");
 
 let controller = {
   validateStudentHome(req, res, next) {
     try {
       const {
         name,
-        streetName,
+        address,
         houseNumber,
         postalCode,
         city,
-        phoneNumber,
+        telephone,
       } = req.body;
       assert(typeof name === "string", "Invalid or missing name");
-      assert(typeof streetName === "string", "Invalid or missing streetName");
+      assert(typeof address === "string", "Invalid or missing address");
       assert(typeof houseNumber === "number", "Invalid or missing houseNumber");
       assert(typeof postalCode === "string", "Invalid or missing postalCode");
       assert(typeof city === "string", "Invalid or missing city");
-      assert(typeof phoneNumber === "string", "Invalid or missing phoneNumber");
+      assert(typeof telephone === "string", "Invalid or missing telephone");
 
       const validatePostalCode = /^(?:NL-)?(\d{4})\s*([A-Z]{2})$/i;
       assert(validatePostalCode.test(postalCode), "Invalid postalCode");
 
-      const validationPhoneNumber = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
-      assert(validationPhoneNumber.test(phoneNumber), "Invalid phoneNumber");
+      const validationtelephone = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
+      assert(validationtelephone.test(telephone), "Invalid telephone");
 
-      if (!req.params.homeId) {
-        let studenthome = { city, streetName, houseNumber };
-
-        db.db.forEach((e) => {
-          let studenthome2 = {
-            city: e.city,
-            streetName: e.streetName,
-            houseNumber: e.houseNumber,
-          };
-          logger.debug(studenthome);
-          logger.debug(studenthome2);
-          assert.notDeepStrictEqual(
-            studenthome,
-            studenthome2,
-            "Studenthome already exists"
-          );
-        });
-      }
       next();
     } catch (err) {
       next({ message: err.message, errCode: 400 });
@@ -53,13 +35,13 @@ let controller = {
   createStudenthome(req, res, next) {
     logger.info("Studenthome endpoint called");
     let studenthome = req.body;
-    logger.info("Studenthome body: " + studenthome);
+    studenthome.userId = req.userId
+    logger.debug("Studenthome body: " + studenthome);
     db.addStudenthome(studenthome, (result, err) => {
       if (err) {
         next(err);
       }
       if (result) {
-        logger.debug(db.db);
         logger.debug("StudentHome added to database");
         studenthome = result;
         res.status(200).json({ status: "success", studenthome });

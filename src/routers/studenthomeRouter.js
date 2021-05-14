@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const studenthomeController = require("../controllers/studenthomeController");
+const authenticationController = require("../controllers/authenticationController");
 
 // UC-201 Maak studentenhuis
-router.post("", studenthomeController.validateStudentHome,studenthomeController.createStudenthome);
+router.post("",authenticationController.validateToken, studenthomeController.validateStudentHome, studenthomeController.createStudenthome);
 // UC-202 Overzicht van studentenhuizen
 router.get("", studenthomeController.getStudenthome);
 // UC-203 Details van studentenhuis

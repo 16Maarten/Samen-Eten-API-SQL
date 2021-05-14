@@ -21,7 +21,7 @@ ENGINE = InnoDB;
 -- Voorbeeld insert query. Wanneer je in Nodejs de ? variant gebruikt hoeven de '' niet om de waarden.
 -- Zet die dan wel in het array er na, in de goede volgorde.
 -- In je Nodejs app zou het password wel encrypted moeten worden.
-INSERT INTO `user` (First_Name, Last_Name, Email, Student_Number, Password) VALUES
+INSERT INTO `user` (`First_Name`, `Last_Name`, `Email`, `Student_Number`, `Password`) VALUES
 ('Jan', 'Smit', 'jsmit@server.nl','222222', 'secret'),
 ('Mark', 'Gerrits', 'mark@gerrits.nl', '333333', 'secret'),
 ('Dion', 'Jansen', 'dion@jansen.nl', '444444', 'secret'),
@@ -33,14 +33,15 @@ INSERT INTO `user` (First_Name, Last_Name, Email, Student_Number, Password) VALU
 DROP TABLE IF EXISTS `studenthome` ;
 CREATE TABLE IF NOT EXISTS `studenthome` (
 	`ID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	`Name` VARCHAR(32) UNIQUE NOT NULL,
+	`Name` VARCHAR(32) NOT NULL,
 	`Address` VARCHAR(32) NOT NULL,
 	`House_Nr` INT UNSIGNED NOT NULL,
 	`UserID` INT UNSIGNED NOT NULL,
 	`Postal_Code` VARCHAR(256) NOT NULL,
 	`Telephone` VARCHAR(256) NOT NULL,
 	`City` VARCHAR(256) NOT NULL,
-	PRIMARY KEY (`ID`)
+	PRIMARY KEY (`ID`),
+	CONSTRAINT UniqueAdress UNIQUE (`Postal_Code`, `House_Nr`)
 )
 ENGINE = InnoDB;
 
@@ -59,6 +60,10 @@ INSERT INTO `studenthome` (`Name`, `Address`, `House_Nr`, `UserID`, `Postal_Code
 ('Lovensdijk', 'Lovensdijkstraat', 62, 2, '4706RX','061234567891','Breda'),
 ('Van Schravensteijn', 'Schravensteijnseweg', 23, 3, '4706RX','061234567891','Breda');
 
+-- Deze zou moeten falen - duplicate address (postcode/huisnummer)
+-- INSERT INTO `studenthome` (`Name`, `Address`, `House_Nr`, `UserID`, `Postal_Code`, `Telephone`, `City`) VALUES
+-- ('Duplicate address', 'Princenhage', 11, 1,'4706RX','061234567891','Breda');
+
 -- -----------------------------------------------------
 -- Table `meal`
 -- -----------------------------------------------------
@@ -69,8 +74,8 @@ CREATE TABLE IF NOT EXISTS `meal` (
 	`Description` VARCHAR(64) NOT NULL,
 	`Ingredients` VARCHAR(64) NOT NULL,
 	`Allergies` VARCHAR(32) NOT NULL,
-	`CreatedOn` DATE NOT NULL,
-	`OfferedOn` DATE NOT NULL,
+	`CreatedOn` DATETIME NOT NULL,
+	`OfferedOn` DATETIME NOT NULL,
 	`Price` DOUBLE UNSIGNED  NOT NULL,
 	`UserID` INT UNSIGNED NOT NULL,
 	`StudenthomeID` INT UNSIGNED NOT NULL,
@@ -93,8 +98,8 @@ ON UPDATE CASCADE
 
 -- Voorbeeld insert query.
 INSERT INTO `meal` (`Name`, `Description`, `Ingredients`, `Allergies`, `CreatedOn`, `OfferedOn`, `Price`, `MaxParticipants`, `UserID`, `StudenthomeID`) VALUES
-('Zuurkool met worst', 'Zuurkool a la Montizaan, specialiteit van het huis.', 'Zuurkool, worst, spekjes', 'Lactose, gluten','2020-09-01','2020-09-01', 5.50, 4, 1, 1),
-('Spaghetti', 'Spaghetti Bolognese', 'Pasta, tomatensaus, gehakt', 'Lactose','2020-09-01','2020-09-01', 3.25, 6, 1, 1);
+('Zuurkool met worst', 'Zuurkool a la Montizaan, specialiteit van het huis.', 'Zuurkool, worst, spekjes', 'Lactose, gluten','2020-01-01 10:10','2020-01-01 10:10', 5.50, 4, 1, 1),
+('Spaghetti', 'Spaghetti Bolognese', 'Pasta, tomatensaus, gehakt', 'Lactose','2020-01-01 10:10','2020-01-01 10:10', 3.25, 6, 1, 1);
 
 -- Voorbeeld delete query
 -- DELETE FROM `meal` WHERE `Name` = 'Spaghetti';
@@ -152,6 +157,37 @@ INSERT INTO `participants` (UserID, StudenthomeID, MealID, SignedUpOn) VALUES
 -- INSERT INTO `participants` (UserID, StudenthomeID, MealID) VALUES (1, 1, 1);
 
 -- -----------------------------------------------------
+-- Deze tabel koppelt meerdere users aan één studenthome.
+-- Dit zijn de users die een maaltijd mogen toevoegen.
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `home_administrators` ;
+CREATE TABLE IF NOT EXISTS `home_administrators` (
+	`UserID` INT UNSIGNED NOT NULL,
+	`StudenthomeID` INT UNSIGNED NOT NULL,
+	PRIMARY KEY (`UserID`, `StudenthomeID`)
+)
+ENGINE = InnoDB;
+
+ALTER TABLE `home_administrators`
+ADD CONSTRAINT `fk_admin_users`
+FOREIGN KEY (`UserID`) REFERENCES `user` (`ID`)
+ON DELETE CASCADE
+ON UPDATE CASCADE
+,
+ADD CONSTRAINT `fk_admin_studentenhome`
+FOREIGN KEY (`StudenthomeID`) REFERENCES `studenthome` (`ID`)
+ON DELETE CASCADE
+ON UPDATE CASCADE
+;
+
+-- Voorbeeld insert query.
+INSERT INTO `home_administrators` (`UserID`, `StudenthomeID`) VALUES
+(1, 1),
+(2, 1),
+(3, 1),
+(4, 1);
+
+-- -----------------------------------------------------
 -- View om participants bij een meal in een studenthome in te zien.
 --
 -- -----------------------------------------------------
@@ -181,6 +217,8 @@ SELECT
 	`participants`.`StudenthomeID`,
 	`participants`.`MealID`,
 	`meal`.`Name`,
+	`meal`.`CreatedOn`,
+	`meal`.`OfferedOn`,
 	`meal`.`MaxParticipants`,
 	`user`.`First_Name`,
 	`user`.`Last_Name`,
