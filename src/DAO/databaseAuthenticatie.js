@@ -10,7 +10,7 @@ let database = {
       if (err) {
         logger.error("Error getting connection from pool: " + err.toString());
         err.message = "Database connection failed";
-        err.errCode = 400;
+        err.errCode = 500;
         callback(undefined, err);
       }
       if (connection) {
@@ -48,12 +48,50 @@ let database = {
     });
   },
 
+  validateUser(homeId, userId, callback) {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        err.message = "Database connection failed";
+        err.errCode = 500;
+        callback(undefined, err);
+      }
+      if (connection) {
+        connection.query(
+          "SELECT *"+
+          "FROM `home_administrators`"+
+          "RIGHT JOIN `studenthome` ON `home_administrators`.`StudenthomeID` = `studenthome`.`ID`"+
+          "WHERE `home_administrators`.`UserID` = ? AND `home_administrators`.`StudenthomeID` = ?  OR `studenthome`.`UserID` = ? AND `studenthome`.`ID` = ?",
+          [
+            userId,
+            homeId,
+            userId,
+            homeId
+          ],
+          (err2, rows) => {
+            connection.release();
+            if (err2) {
+              err2.message = "HomeId doesn't exists";
+              err2.errCode = 400;
+              callback(undefined, err2);
+            } else {
+                if(rows.length === 1){
+                  logger.debug("user is validated")
+                  callback(rows, undefined);
+                } else {
+                  callback(undefined, {message: "Not authorized"});
+                }
+              }
+          });
+      }
+    });
+  },
+
   checkUser(item, callback) {
     pool.getConnection((err, connection) => {
       if (err) {
         logger.error("Error getting connection from pool: " + err.toString());
         err.message = "Database connection failed";
-        err.errCode = 400;
+        err.errCode = 500;
         callback(undefined, err);
       }
       if (connection) {

@@ -42,9 +42,7 @@ let controller = {
       next()
     } catch (ex) {
       console.log('validateRegister error: ', ex)
-      res
-        .status(402)
-        .json({ message: ex.toString(), datetime: new Date().toISOString() })
+      res.status(402).json({ message: ex.toString(), datetime: new Date().toISOString() })
     }
   },
 
@@ -76,6 +74,25 @@ let controller = {
         }
       })
     }
+  },
+
+  validateUser(req, res, next) {
+    const userId = parseInt(req.userId)
+    const homeId = parseInt(req.params.homeId);
+    logger.info('validateUser called')
+    db.validateUser(homeId, userId, (result, err) => {
+      if (err) {
+        logger.warn('Not authorized')
+        res.status(401).json({
+          error: 'Not authorized',
+          datetime: new Date().toISOString()
+        })
+      }
+      if (result) {
+        logger.info("User is valid");
+        next()
+      }
+    });
   },
 
 
