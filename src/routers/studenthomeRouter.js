@@ -14,5 +14,5 @@ router.put("/:homeId",authenticationController.validateToken,authenticationContr
 // UC-205 Studentenhuis verwijderen
 router.delete("/:homeId",authenticationController.validateToken,authenticationController.validateUser, studenthomeController.deleteStudenthome);
 // UC-206 Gebruiker toevoegen aan studentenhuis
-router.put("/:homeId/user",authenticationController.validateToken, studenthomeController.createStudenthome);
+router.post("/:homeId/user",authenticationController.validateToken,studenthomeController.validateStudentHomeUser, studenthomeController.addStudenthomeUser);
 module.exports = router;

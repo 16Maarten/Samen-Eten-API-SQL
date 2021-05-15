@@ -133,18 +133,18 @@ let controller = {
   },
 
   // UC-206 Gebruiker toevoegen aan studentenhuis
-  addUserStudenthome(req, res, next) {
+  addStudenthomeUser(req, res, next) {
     logger.info("Studenthome/:homeId/user endpoint called");
     const homeId = parseInt(req.params.homeId);
     const userId = parseInt(req.body.id)
     logger.debug(homeId);
-    db.deleteStudenthome(homeId,userId, (result, err) => {
+    db.addUser(homeId,userId, (result, err) => {
       if (err) {
         next(err);
       }
       if (result) {
         logger.info(result);
-        res.status(200).send({ status: "success", message: "ADministrator added with id" + userId });
+        res.status(200).send({ status: "success", message: "Administrator added with id " + userId });
       }
     });
   }

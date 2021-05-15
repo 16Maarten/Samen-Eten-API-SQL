@@ -190,7 +190,7 @@ let database = {
               if(rows.changedRows > 0){
                 callback(rows, undefined);
               } else {
-                logger.info("mealId doesn't exist in this studenthome")
+                logger.info("mealId doesn't exist in this studenthome!")
                 const err3 = {
                 message: "mealId doesn't exist in this studenthome",
                 errCode: 400

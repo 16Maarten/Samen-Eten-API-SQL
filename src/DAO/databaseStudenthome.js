@@ -183,6 +183,38 @@ let database = {
       }
     });
   },
+
+  addUser(homeId, userId, callback) {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        err.message = "Database connection failed";
+        err.errCode = 500;
+        callback(undefined, err);
+      }
+      if (connection) {
+        connection.query(
+          "INSERT INTO `home_administrators` VALUES (?, ?)",
+          [
+            userId,
+            homeId
+          ],
+          (err2, results) => {
+            connection.release();
+            if (err2) {
+              logger.info("User doesn't exist")
+              err2.message = "User doesn't exist";
+              err2.errCode = 400;
+              callback(undefined, err2);
+            }
+            if (results) {
+              callback(results, undefined);
+            }
+          }
+        );
+      }
+    });
+  },
+
 };
 
 module.exports = database;
