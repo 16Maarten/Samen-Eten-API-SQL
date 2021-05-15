@@ -1,8 +1,9 @@
 const express = require("express");
 const logger = require("tracer").colorConsole();
-const authentication = require("./src/routers/authenticationRouter.js");
-const studenthome = require("./src/routers/studenthomeRouter.js");
-const meals = require("./src/routers/mealsRouter.js");
+const authentication = require("./src/routers/authenticationRouter");
+const studenthome = require("./src/routers/studenthomeRouter");
+const meals = require("./src/routers/mealsRouter");
+const participant = require("./src/routers/participantRouter");
 
 const app = express();
 app.use(express.json())
@@ -14,6 +15,8 @@ app.use("/api", authentication);
 app.use("/api/studenthome", meals)
 // Studenthome | UC-201 t/m UC-206
 app.use("/api/studenthome", studenthome)
+// Participant | UC-401 t/m UC-404
+app.use("/api", participant)
 
 // Generic handler
 app.all( "*", (req, res, next) => {
