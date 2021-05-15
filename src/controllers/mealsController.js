@@ -1,19 +1,19 @@
 const logger = require("tracer").colorConsole();
 const assert = require("assert");
-let db = require("../DAO/database");
+let db = require("../DAO/databaseMeals");
 
 let controller = {
 
   validateStudentHomeMeal(req, res, next) {
     try {
-      const {mealName,description,servingDate,price, allergicInformation,ingredients} = req.body;
-      assert(typeof mealName === "string", "Invalid or missing mealName")
+      const {name,description,offerdOn,price, allergies,ingredients, maxParticipants} = req.body;
+      assert(typeof name === "string", "Invalid or missing name")
       assert(typeof description === "string", "Invalid or missing description")
       assert(typeof price === "number", "Invalid or missing price")
-      assert(typeof allergicInformation === "string", "Invalid or missing allergicInformation")
-      assert(Array.isArray(ingredients), "Invalid or missing ingredients")
-
-      assert(!(servingDate instanceof Date),"Invalid or missing servingDate")
+      assert(typeof allergies === "string", "Invalid or missing allergies")
+      assert(typeof ingredients === "string", "Invalid or missing ingredients")
+      assert(!(offerdOn instanceof Date),"Invalid or missing servingDate")
+      assert(typeof maxParticipants === "number", "Invalid or missing maxParticipants")
 
       const validationPrice = /^[0-9]\d*(((,\d{3}){1})?(\.\d{0,2})?)$/
       assert(validationPrice.test(price), "price is invalid")
@@ -27,12 +27,14 @@ let controller = {
 
   //UC-301 Maaltijd aanmaken
   createStudenthomeMeal(req, res, next) {
-    const id = req.params.homeId
+    const homeId = req.params.homeId
     let meal = req.body
+    const userId = req.userId
     logger.info("Studenthome/:homeId/meal");
     logger.info("Meal body: " + meal);
-    logger.info("id: " + id);
-    db.addStudenthomeMeal(id,meal, (result, err) => {
+    logger.info("homeId: " + homeId);
+    logger.info("userId: " + userId);
+    db.addStudenthomeMeal(homeId,userId,meal, (result, err) => {
       if (err) {
         next(err);
       }
@@ -48,29 +50,16 @@ let controller = {
   // UC-302 Maaltijd wijzigen
   updateStudenthomeMeal(req, res, next) {
     logger.info("Studenthome/:homeId/meal/:mealId endpoint called");
-    const homeId = req.params.homeId;
-    const mealId = req.params.mealId;
-    let meal = req.body;
-    db.deleteStudenthomeMeal(homeId,mealId, (result, err) => {
+    const mealId = parseInt(req.params.mealId);
+    const meal = req.body
+    logger.debug(mealId);
+    db.updateStudenthomeMeal(mealId,meal, (result, err) => {
       if (err) {
         next(err);
       }
       if (result) {
-        meal.id = mealId;
-        db.addStudenthomeMeal(homeId,meal, (result2, err2) => {
-          if (err2) {
-            next(err2);
-          }
-          if (result2) {
-            logger.debug(db.db);
-            logger.debug("Meal added to database");
-            logger.debug(meal)
-            meal = result2;
-            res
-              .status(200)
-              .json({ status: "success", meal, message: "updated" });
-          }
-        });
+        logger.info(result);
+        res.status(200).send({ status: "success", meal});
       }
     });
   },
@@ -84,13 +73,7 @@ let controller = {
         next(err);
       }
       if (result) {
-        let meals = [];
-        for (let i = 0; i < result.length; i++) {
-          meals.push({ mealName: result[i].mealName, id: result[i].id });
-          logger.debug(
-            "Meal: " + result[i].mealName + " id: " + result[i].id
-          );
-        }
+        const meals = result;
         res.status(200).json({ status: "success", meals });
       }
     });
@@ -114,16 +97,15 @@ let controller = {
 
   // UC-305 Maaltijd verwijderen
   deleteStudenthomeMeal(req, res, next) {
-    const homeId = req.params.homeId;
-    const mealId = req.params.mealId;
+    const mealId = parseInt(req.params.mealId);
     logger.info("Studenthome/:homeId/meal/:mealId endpoint called");
-    db.deleteStudenthomeMeal(homeId,mealId, (result, err) => {
+    db.deleteStudenthomeMeal(mealId, (result, err) => {
       if (err) {
         next(err);
       }
       if (result) {
         logger.info(result);
-        res.status(200).send({ status: "success", result });
+        res.status(200).send({ status: "success", message: "meal deleted" });
       }
     });
   },

@@ -1,105 +1,207 @@
 const logger = require("tracer").colorConsole();
-let lastInsertedIndex = 2;
-let lastInsertedMealIndex = 1;
 const pool = require("./databasePool");
 const config = require("./databaseConfig");
 
 let database = {
-  addStudenthomeMeal(homeId, item, callback) {
-    let studenthome = this.db.filter((e) => {
-      return e.id == homeId;
+  addStudenthomeMeal(homeId,userId, meal, callback) {
+    meal.creationDate = new Date();
+    pool.getConnection((err, connection) => {
+      if (err) {
+        err.message = "Database connection failed";
+        err.errCode = 500;
+        callback(undefined, err);
+      }
+      if (connection) {
+        logger.debug([
+          meal.name,
+          meal.description,
+          meal.ingredients,
+          meal.allergies,
+          meal.creationDate,
+          meal.offerdOn,
+          meal.price,
+          meal.maxParticipants,
+        ]);
+        connection.query(
+          "INSERT INTO `meal` (`Name`, `Description`, `Ingredients`, `Allergies`, `CreatedOn`,`OfferedOn`,`Price`,`UserID`,`StudenthomeID`,`MaxParticipants`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          [
+            meal.name,
+            meal.description,
+            meal.ingredients,
+            meal.allergies,
+            meal.creationDate,
+            meal.offerdOn,
+            meal.price,
+            userId,
+            homeId,
+            meal.maxParticipants,
+          ],
+          (err2, results) => {
+            connection.release();
+            if (err2) {
+              err2.message = "An input was wrong";
+              err2.errCode = 400;
+              callback(undefined, err2);
+            }
+            if (results) {
+              meal.id = results.insertId;
+              callback(meal, undefined);
+            }
+          }
+        );
+      }
     });
-    logger.debug("studenthome: " + studenthome[0]);
-    let studenthomeIndex = this.db.indexOf(studenthome[0]);
-    if (!item.id) {
-      item.creationDate = new Date();
-      item.id = lastInsertedMealIndex++;
-    }
-    this.db[studenthomeIndex].meals.push(item);
-    callback(item, undefined);
   },
 
   getStudenthomeMeal(homeId, callback) {
-    let Studenthome = this.db.filter((e) => {
-      return e.id == homeId;
+    pool.getConnection((err, connection) => {
+      if (err) {
+        err.message = "Database connection failed";
+        err.errCode = 400;
+        callback(undefined, err);
+      }
+      if (connection) {
+        connection.query(
+          "SELECT `Name`, `Description`, `Ingredients`, `Allergies`, `OfferedOn`,`Price`,`MaxParticipants`, `ID`FROM `meal` WHERE `StudenthomeID` = ?",
+          [homeId],
+          (err2, results) => {
+            connection.release();
+            if (err2) {
+              err2.message = "getStudenthomeMeal failed";
+              err2.errCode = 400;
+              callback(undefined, err2);
+            }
+            if (results) {
+              logger.trace("results: ", results);
+              const mappedResults = results.map((item) => {
+                return {
+                  ...item,
+                };
+              });
+              if (mappedResults.length > 0) {
+                callback(mappedResults, undefined);
+              } else {
+                let err3 = {
+                  message: "Studenthome doesn't have any meals",
+                  errCode: 404,
+                };
+                callback(undefined, err3);
+              }
+            }
+          }
+        );
+      }
     });
-    logger.debug("studentHome: " + Studenthome[0]);
-    const meals = Studenthome[0].meals;
-    logger.debug(meals);
-    callback(meals, undefined);
   },
 
   getDetailedStudenthomeMeal(homeId, mealId, callback) {
-    let detailedStudenthome = this.db.filter((e) => {
-      return e.id == homeId;
-    });
-    if (detailedStudenthome.length > 0) {
-      let detailedmeals = this.db[
-        this.db.indexOf(detailedStudenthome[0])
-      ].meals.filter((e) => {
-        return e.id == mealId;
-      });
-      if (detailedmeals.length > 0) {
-        callback(detailedmeals[0], undefined);
-      } else {
-        let err = {
-          message: "meal id doesn't exist",
-          errCode: 404,
-        };
-        if (homeId) {
-          err.message += " id: " + mealId;
-        }
+    pool.getConnection((err, connection) => {
+      if (err) {
+        err.message = "Database connection failed";
+        err.errCode = 400;
         callback(undefined, err);
       }
-    } else {
-      let err = {
-        message: "Studenthome id doesn't exist",
-        errCode: 404,
-      };
-      if (homeId) {
-        err.message += " id: " + homeId;
+      if (connection) {
+        connection.query(
+          "SELECT `Name`, `Description`, `Ingredients`, `Allergies`, `CreatedOn`,`OfferedOn`,`Price`,`UserID`,`MaxParticipants` `ID`FROM `meal` WHERE `StudenthomeID` = ? AND `ID` = ?",
+          [homeId,mealId],
+          (err2, rows) => {
+            connection.release();
+            if (err2) {
+              logger.error(err2)
+              callback(undefined, err2);
+            }
+            if (rows) {
+              logger.trace(rows)
+              if(rows.changedRows > 0){
+                callback(rows, undefined);
+              } else {
+                logger.info("mealId doesn't exist in this studenthome")
+                const err3 = {
+                message: "mealId doesn't exist in this studenthome",
+                errCode: 400
+                }
+                callback(undefined, err3);
+              }
+            }
+          }
+        );
       }
-      callback(undefined, err);
-    }
+    });
   },
 
-  deleteStudenthomeMeal(homeId, mealId, callback) {
-    let deletedStudenthome = this.db.filter((e) => {
-      return e.id == homeId;
-    });
-    if (deletedStudenthome.length > 0) {
-      const studenthomeIndex = this.db.indexOf(deletedStudenthome[0]);
-      let deletedmeals = this.db[studenthomeIndex].meals.filter((e) => {
-        return e.id == mealId;
-      });
-      if (deletedmeals.length > 0) {
-        this.db[studenthomeIndex].meals.splice(
-          this.db[studenthomeIndex].meals[
-            this.db[studenthomeIndex].meals.indexOf(deletedmeals[0])
-          ],
-          1
-        );
-        callback(deletedmeals[0], undefined);
-      } else {
-        let err = {
-          message: "meal id doesn't exist",
-          errCode: 404,
-        };
-        if (homeId) {
-          err.message += " id: " + mealId;
-        }
+  deleteStudenthomeMeal(mealId, callback) {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        err.message = "Database connection failed";
+        err.errCode = 500;
         callback(undefined, err);
       }
-    } else {
-      let err = {
-        message: "Studenthome id doesn't exist",
-        errCode: 404,
-      };
-      if (homeId) {
-        err.message += " id: " + homeId;
+      if (connection) {
+        connection.query(
+            "DELETE FROM `meal`" +
+            "where `ID` = ?",
+          [mealId],
+          (err2, rows) => {
+            connection.release();
+            if (err2) {
+              callback(undefined, err2);
+            }
+            if (rows) {
+              logger.trace(rows)
+              if(rows.affectedRows > 0){
+                callback(rows, undefined);
+              } else {
+                logger.info("mealId doesn't exist in this studenthome")
+                const err3 = {
+                message: "mealId doesn't exist in this studenthome",
+                errCode: 400
+                }
+                callback(undefined, err3);
+              }
+            }
+          }
+        );
       }
-      callback(undefined, err);
-    }
+    });
+  },
+
+  updateStudenthomeMeal(mealId,meal, callback) {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        err.message = "Database connection failed";
+        err.errCode = 500;
+        callback(undefined, err);
+      }
+      if (connection) {
+        connection.query(
+            "UPDATE `meal`" +
+            "SET `Name` = ?, `Description` = ?, `Ingredients` = ?, `Allergies` = ?,`OfferedOn` = ?,`Price` = ? ,`MaxParticipants` = ? "+
+            "where `ID` = ?",
+          [meal.name,meal.description, meal.ingredients, meal.allergies, meal.offerdOn, meal.price,meal.maxParticipants, mealId],
+          (err2, rows) => {
+            connection.release();
+            if (err2) {
+              logger.error(err2)
+              callback(undefined, err2);
+            }
+            if (rows) {
+              logger.trace(rows)
+              if(rows.changedRows > 0){
+                callback(rows, undefined);
+              } else {
+                logger.info("mealId doesn't exist in this studenthome")
+                const err3 = {
+                message: "mealId doesn't exist in this studenthome",
+                errCode: 400
+                }
+                callback(undefined, err3);
+              }
+            }
+          }
+        );
+      }
+    });
   },
 };
 
