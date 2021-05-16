@@ -12,8 +12,11 @@ let controller = {
       assert(typeof price === "number", "Invalid or missing price")
       assert(typeof allergies === "string", "Invalid or missing allergies")
       assert(typeof ingredients === "string", "Invalid or missing ingredients")
-      assert(!(offerdOn instanceof Date),"Invalid or missing servingDate")
       assert(typeof maxParticipants === "number", "Invalid or missing maxParticipants")
+
+
+      const validationDate = /^(19|20)?[0-9]{2}[-](0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[012])[ ]([0-1][0-9]|[2][0-3])[:]([0-5][0-9]|[6][0])[:]([0-5][0-9]|[6][0])$/
+      assert(validationDate.test(offerdOn), "offerdOn is invalid")
 
       const validationPrice = /^[0-9]\d*(((,\d{3}){1})?(\.\d{0,2})?)$/
       assert(validationPrice.test(price), "price is invalid")

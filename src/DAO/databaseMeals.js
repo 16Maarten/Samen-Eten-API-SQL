@@ -113,7 +113,7 @@ let database = {
             }
             if (rows) {
               logger.trace(rows)
-              if(rows.changedRows > 0){
+              if(rows.length > 0){
                 callback(rows, undefined);
               } else {
                 logger.info("mealId doesn't exist in this studenthome")

@@ -54,7 +54,7 @@ let database = {
             (err2, results) => {
               connection.release();
               if (err2) {
-                err2.message = "mealId or homeId doesn't exist wtf";
+                err2.message = "mealId or homeId doesn't exist!";
                 err2.errCode = 400;
                 callback(undefined, err2);
               }
@@ -66,7 +66,7 @@ let database = {
       });
   },
 
-  updateStudenthomeMeal(mealId,meal, callback) {
+ getParticipantsMeal(mealId, callback) {
     pool.getConnection((err, connection) => {
       if (err) {
         err.message = "Database connection failed";
@@ -75,32 +75,64 @@ let database = {
       }
       if (connection) {
         connection.query(
-            "UPDATE `meal`" +
-            "SET `Name` = ?, `Description` = ?, `Ingredients` = ?, `Allergies` = ?,`OfferedOn` = ?,`Price` = ? ,`MaxParticipants` = ? "+
-            "where `ID` = ?",
-          [meal.name,meal.description, meal.ingredients, meal.allergies, meal.offerdOn, meal.price,meal.maxParticipants, mealId],
-          (err2, rows) => {
+          "SELECT `UserID`,`SignedUpOn` FROM `participants` WHERE `MealID` = ?",
+          [
+            mealId
+          ],
+          (err2, results) => {
             connection.release();
             if (err2) {
-              logger.error(err2)
+              err2.message = "mealId doesn't exist";
+              err2.errCode = 400;
               callback(undefined, err2);
             }
-            if (rows) {
-              logger.trace(rows)
-              if(rows.changedRows > 0){
-                callback(rows, undefined);
+            if (results) {
+              const mappedResults = results.map((item) => {
+                return {
+                  ...item,
+                };
+              })
+              callback(mappedResults, undefined);
+            }
+          }
+        )}
+    });
+  },
+
+  getDetailParticipantsMeal(mealId,participantId, callback) {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        err.message = "Database connection failed";
+        err.errCode = 500;
+        callback(undefined, err);
+      }
+      if (connection) {
+        connection.query(
+          "SELECT `ID`,`First_Name`,`Last_Name`,`Email`,`Student_Number` FROM `user` WHERE `ID` = ?",
+          [
+            participantId
+          ],
+          (err2, results) => {
+            connection.release();
+            if (err2) {
+              logger.trace(err2)
+              err2.message = "Database error";
+              err2.errCode = 500;
+              callback(undefined, err2);
+            }
+            if (results) {
+              if(results.length > 0){
+              callback(results, undefined);
               } else {
-                logger.info("mealId doesn't exist in this studenthome!")
                 const err3 = {
-                message: "mealId doesn't exist in this studenthome",
-                errCode: 400
-                }
+                  message: "participantId doesn't exist",
+                  errCode: 400
+                  }
                 callback(undefined, err3);
               }
             }
           }
-        );
-      }
+        )}
     });
   },
 };

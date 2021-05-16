@@ -46,32 +46,34 @@ let controller = {
   },
 
   //UC-403 Lijst van deelnemers opvragen
-  getStudenthomeMeals(req, res, next) {
-    const homeId = req.params.homeId
-    logger.info("Studenthome/:homeId/meal endpoint called");
-    db.getStudenthomeMeal(homeId, (result, err) => {
+  getParticpants(req, res, next) {
+    const mealId = req.params.mealId
+    logger.info("/meal/:mealId/participants endpoint called");
+    db.getParticipantsMeal(mealId, (result, err) => {
       if (err) {
         next(err);
       }
       if (result) {
-        const meals = result;
-        res.status(200).json({ status: "success", meals });
+        const participants = result;
+        logger.info(participants)
+        res.status(200).json({ status: "success", participants });
       }
     });
   },
 
   //UC-404 Details van deelnemer opvragen
-  getStudenthomeDetailMeal(req, res, next) {
-    const homeId = req.params.homeId;
-    const mealId = req.params.mealId;
-    logger.info("Studenthome/:homeId/meal/:mealId endpoint called");
-    db.getDetailedStudenthomeMeal(homeId,mealId, (meal, err) => {
+  getDetailParticpant(req, res, next) {
+    const participantId = req.params.participantId
+    const mealId = req.params.mealId
+    logger.info("/meal/:mealId/participants/:participantId endpoint called");
+    db.getDetailParticipantsMeal(mealId,participantId, (result, err) => {
       if (err) {
         next(err);
       }
-      if (meal) {
-        logger.info(meal);
-        res.status(200).send({ status: "success", meal });
+      if (result) {
+        const participant = result;
+        logger.info(participant)
+        res.status(200).json({ status: "success", participant});
       }
     });
   },
