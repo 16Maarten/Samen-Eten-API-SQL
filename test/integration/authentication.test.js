@@ -1,7 +1,6 @@
 const logger = require("tracer").colorConsole();
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const assert = require("assert");
 const server = require("../../server");
 const pool = require("../../src/DAO/databasePool");
 
@@ -15,7 +14,7 @@ logger.info(`Running tests using database '${process.env.DB_DATABASE}'`);
 
 const CLEAR_DB = "DELETE IGNORE FROM `user`";
 const ADD_USER_DB =
-  "INSERT INTO `user` (`First_Name`, `Last_Name`, `Email`, `Student_Number`, `Password`) VALUES('Jan', 'Smit', 'jsmit@server.nl','222222', 'secret')";
+  "INSERT INTO `user` (`ID`,`First_Name`, `Last_Name`, `Email`, `Student_Number`, `Password`) VALUES(1,'Jan', 'Smit', 'jsmit@server.nl','222222', 'secret'),(2,'Gerard', 'Joling', 'gjoling@server.nl','111111', 'secret')";
 
 describe("Authentication", () => {
   before((done) => {

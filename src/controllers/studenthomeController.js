@@ -43,6 +43,19 @@ let controller = {
     }
   },
 
+  studenthomeExist(req, res, next) {
+    const homeId = parseInt(req.params.homeId);
+    logger.info("StudenthomeExist called");
+    db.checkStudenthome(homeId, (result, err) => {
+      if (err) {
+        next(err);
+      }
+      if (result) {
+        next()
+      }
+    });
+  },
+
   // UC-201 Maak studentenhuis
   createStudenthome(req, res, next) {
     logger.info("Studenthome endpoint called");
