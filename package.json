@@ -4,7 +4,7 @@
   "description": "Project programmeren 4",
   "main": "server.js",
   "scripts": {
-    "test": "mocha -reporter spec test/**/*.test.js --exit",
+    "test": "mocha test/**/*.test.js --exit",
     "start": "node server.js",
     "coverage": "nyc --reporter=lcov npm run test",
     "sonar": "sonar-scanner"
