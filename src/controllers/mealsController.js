@@ -112,6 +112,19 @@ let controller = {
       }
     });
   },
+
+  mealExist(req, res, next) {
+    const mealId = parseInt(req.params.mealId);
+    logger.info("StudenthomeExist called");
+    db.checkMeal(mealId, (result, err) => {
+      if (err) {
+        next(err);
+      }
+      if (result) {
+        next()
+      }
+    });
+  },
 };
 
 module.exports = controller;

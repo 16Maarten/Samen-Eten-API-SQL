@@ -23,8 +23,8 @@ let database = {
           (err2, results) => {
             connection.release();
             if (err2) {
-              err2.message = "mealId or homeId doesn't exist";
-              err2.errCode = 400;
+              err2.message = "mealId doesn't exist";
+              err2.errCode = 404;
               callback(undefined, err2);
             }
             if (results) {
@@ -53,13 +53,23 @@ let database = {
             ],
             (err2, results) => {
               connection.release();
+              logger.trace(results)
               if (err2) {
-                err2.message = "mealId or homeId doesn't exist!";
+                err2.message = "user is not singned up";
                 err2.errCode = 400;
                 callback(undefined, err2);
               }
               if (results) {
+                if(results.affectedRows > 0){
                 callback(results, undefined);
+                } else {
+                  logger.info("user is not singned up")
+                  const err3 = {
+                  message: "user is not singned up",
+                  errCode: 404
+                  }
+                  callback(undefined, err3);
+                }
               }
             }
           )}
@@ -83,16 +93,26 @@ let database = {
             connection.release();
             if (err2) {
               err2.message = "mealId doesn't exist";
-              err2.errCode = 400;
+              err2.errCode = 404;
               callback(undefined, err2);
             }
             if (results) {
+              logger.trace(results)
+              if(results.length > 0){
               const mappedResults = results.map((item) => {
                 return {
                   ...item,
                 };
               })
               callback(mappedResults, undefined);
+            } else {
+              logger.info("mealId doesn't exist")
+              const err3 = {
+              message: "mealId doesn't exist",
+              errCode: 404
+              }
+              callback(undefined, err3);
+            }
             }
           }
         )}
@@ -122,7 +142,7 @@ let database = {
             }
             if (results) {
               if(results.length > 0){
-              callback(results, undefined);
+              callback(...results, undefined);
               } else {
                 const err3 = {
                   message: "participantId doesn't exist",

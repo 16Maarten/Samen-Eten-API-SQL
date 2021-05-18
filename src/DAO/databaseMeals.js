@@ -203,6 +203,43 @@ let database = {
       }
     });
   },
+
+  checkMeal(mealId, callback) {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        err.message = "Database connection failed";
+        err.errCode = 500;
+        callback(undefined, err);
+      }
+      if (connection) {
+        connection.query(
+          "SELECT * FROM `meal` WHERE `ID` = ?",
+          [
+            mealId
+          ],
+          (err2, results) => {
+            connection.release();
+            if (err2) {
+              logger.info("query failed")
+              err2.message = "query failed";
+              err2.errCode = 500;
+              callback(undefined, err2);
+            }
+            if (results.length) {
+              callback(results, undefined);
+            } else {
+              logger.info("mealId doesn't exist")
+              const err3 = {
+              message: "mealId doesn't exist",
+              errCode: 404
+              }
+              callback(undefined, err3);
+            }
+          }
+        );
+      }
+    });
+  },
 };
 
 module.exports = database;

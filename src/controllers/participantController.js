@@ -15,7 +15,6 @@ let controller = {
     logger.info("userId: " + userId);
     db.addParticipant(homeId,mealId,userId, (result, err) => {
       if (err) {
-          err.message = "gaat het hier fout???"
         next(err);
       }
       if (result) {
@@ -73,7 +72,7 @@ let controller = {
       if (result) {
         const participant = result;
         logger.info(participant)
-        res.status(200).json({ status: "success", participant});
+        res.status(200).json({ status: "success",participant});
       }
     });
   },
