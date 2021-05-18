@@ -6,11 +6,10 @@
 # project’s Settings ➔ CI / CD ➔ Variables on the GitLab website.
 #
 # image: node:latest
-
 stages:
   - test
+  - analysis
   - production
-
 #
 # Global variables
 #
@@ -20,7 +19,6 @@ variables:
   MYSQL_ROOT_PASSWORD: some_secret_password
   # DOCKER_HOST: tcp://docker:2375/
   # DOCKER_DRIVER: overlay2
-
 #
 # Testing nodejes backend
 # Our server uses a MySql database, so to run our testcases we also need a database.
@@ -30,11 +28,33 @@ variables:
 testing:
   stage: test
   image: node:latest
+  services:
+    - mysql:5.6
+  variables:
+    NODE_ENV: development
+    DB_USER: root
+    DB_DATABASE: ${MYSQL_DATABASE}
+    DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    DB_HOST: mysql
+  before_script:
+    # Install the database into the node:latest container
+    - apt-get update && apt-get install -y git curl libmcrypt-dev default-mysql-client
+    - mysql --version
+    # Create our database by running the database.sql script
+    - mysql --host=mysql --user="${DB_USER}" --password="${DB_PASSWORD}" ${DB_DATABASE} < studenthome.sql
+    - mysqlshow --host=mysql --user="${DB_USER}" --password="${DB_PASSWORD}" ${DB_DATABASE}
+    # Install the node packages that our server needs.
+    - npm install --no-optional
   script:
-    - npm i -D mocha
-    - npm run test
-  only:
-    - master
+    - npm run coverage # also runs tests, see package.json
+
+Sonar analysis:
+  stage: analysis
+  image: node:latest
+  before_script:
+    - npm install --no-optional
+  script:
+    - npm run sonar
 #
 # Deploy to Heroku
 # DPL is a deploy tool made for continuous deployment that’s developed and used
@@ -56,4 +76,4 @@ production:
     - gem install dpl
     - dpl --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY
   only:
-    - master
+    - main
