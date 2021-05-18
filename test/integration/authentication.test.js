@@ -3,6 +3,7 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 const server = require("../../server");
 const pool = require("../../src/DAO/databasePool");
+const bcrypt = require("bcrypt");
 
 chai.should();
 chai.use(chaiHttp);
@@ -13,8 +14,6 @@ process.env.LOGLEVEL = "error";
 logger.info(`Running tests using database '${process.env.DB_DATABASE}'`);
 
 const CLEAR_DB = "DELETE IGNORE FROM `user`";
-const ADD_USER_DB =
-  "INSERT INTO `user` (`ID`,`First_Name`, `Last_Name`, `Email`, `Student_Number`, `Password`) VALUES(1,'Jan', 'Smit', 'jsmit@server.nl','222222', 'secret'),(2,'Gerard', 'Joling', 'gjoling@server.nl','111111', 'secret')";
 
 describe("Authentication", () => {
   before((done) => {
@@ -30,14 +29,17 @@ describe("Authentication", () => {
   });
 
   before((done) => {
-    pool.query(ADD_USER_DB, (err, rows, fields) => {
-      logger.info("Add user");
-      if (err) {
-        logger.error(`beforeEach CLEAR error: ${err}`);
-        done(err);
-      } else {
-        done();
-      }
+    bcrypt.hash("secret", 10).then((hash) => {
+      const ADD_USER_DB ="INSERT INTO `user` (`ID`, `First_Name`, `Last_Name`, `Email`, `Student_Number`, `Password`) VALUES('1', 'Jan', 'Smit', 'jsmit@server.nl','222222', ?),('2', 'Gerard', 'Joling', 'gjoling@server.nl', '111111', ?)";
+      pool.query(ADD_USER_DB, [hash, hash], (err, rows, fields) => {
+        logger.info("Add user");
+        if (err) {
+          logger.error(`beforeEach CLEAR error: ${err}`);
+          done(err);
+        } else {
+          done();
+        }
+      });
     });
   });
 
@@ -144,7 +146,7 @@ describe("Authentication", () => {
           lastname: "vis",
           email: "henkVis@server.nl",
           student_Number: 1234567,
-          password: "secret",
+          password: "secret"
         })
         .end((err, res) => {
           res.should.have.status(200);
@@ -240,7 +242,7 @@ describe("Authentication", () => {
         });
     });
 
-    it("TC-101-5 Gebruiker succesvol geregistreerd", (done) => {
+    it("TC-102-5 Gebruiker succesvol ingelogd", (done) => {
       chai
         .request(server)
         .post("/api/login")
