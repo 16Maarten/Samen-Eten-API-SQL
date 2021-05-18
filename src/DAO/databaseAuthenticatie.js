@@ -3,6 +3,7 @@ const pool = require("./databasePool");
 const jwt = require("jsonwebtoken");
 const jwtSecretKey = require("../DAO/databaseConfig").jwtSecretKey;
 const config = require("./databaseConfig");
+const bcrypt = require("bcrypt");
 
 let database = {
   addUser(item, callback) {
@@ -14,6 +15,13 @@ let database = {
         callback(undefined, err);
       }
       if (connection) {
+        bcrypt.hash(item.password, 10, (error, hashPassword) => {
+        if (error) {
+          res.status(500).json({
+            message: "Hash was not succesfull " + error.message,
+            datetime: new Date().toISOString(),
+          });
+        } else {
         connection.query(
           "INSERT INTO `user` (`First_Name`, `Last_Name`, `Email`, `Student_Number`, `Password`) VALUES (?, ?, ?, ?, ?)",
           [
@@ -21,7 +29,7 @@ let database = {
             item.lastname,
             item.email,
             item.student_Number,
-            item.password,
+            hashPassword,
           ],
           (err2, rows) => {
             connection.release();
@@ -45,6 +53,8 @@ let database = {
           }
         );
       }
+    })
+    }
     });
   },
 
@@ -106,10 +116,13 @@ let database = {
               callback(undefined, err2);
             } else {
               logger.trace(rows);
+              bcrypt
+              .compare(item.password, rows[0].Password)
+              .then((match) => {
               if (
                 rows &&
                 rows.length === 1 &&
-                rows[0].Password == item.password
+                match
               ) {
                 logger.info("passwords DID match, sending valid token");
                 const payload = {
@@ -129,6 +142,7 @@ let database = {
                 logger.info("User not found or password invalid");
                 callback(undefined, err3);
               }
+            })
             }
           }
         );
