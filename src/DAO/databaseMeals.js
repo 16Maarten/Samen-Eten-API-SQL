@@ -103,7 +103,7 @@ let database = {
       }
       if (connection) {
         connection.query(
-          "SELECT `Name`, `Description`, `Ingredients`, `Allergies`, `CreatedOn`,`OfferedOn`,`Price`,`UserID`,`MaxParticipants` `ID`FROM `meal` WHERE `StudenthomeID` = ? AND `ID` = ?",
+          "SELECT `Name`, `Description`, `Ingredients`, `Allergies`, `CreatedOn`,`OfferedOn`,`Price`,`UserID`,`MaxParticipants`, `ID`FROM `meal` WHERE `StudenthomeID` = ? AND `ID` = ?",
           [homeId,mealId],
           (err2, rows) => {
             connection.release();
@@ -114,12 +114,12 @@ let database = {
             if (rows) {
               logger.trace(rows)
               if(rows.length > 0){
-                callback(rows, undefined);
+                callback(...rows, undefined);
               } else {
                 logger.info("mealId doesn't exist in this studenthome")
                 const err3 = {
                 message: "mealId doesn't exist in this studenthome",
-                errCode: 400
+                errCode: 404
                 }
                 callback(undefined, err3);
               }
@@ -155,7 +155,7 @@ let database = {
                 logger.info("mealId doesn't exist in this studenthome")
                 const err3 = {
                 message: "mealId doesn't exist in this studenthome",
-                errCode: 400
+                errCode: 404
                 }
                 callback(undefined, err3);
               }
@@ -193,7 +193,7 @@ let database = {
                 logger.info("mealId doesn't exist in this studenthome!")
                 const err3 = {
                 message: "mealId doesn't exist in this studenthome",
-                errCode: 400
+                errCode: 404
                 }
                 callback(undefined, err3);
               }
