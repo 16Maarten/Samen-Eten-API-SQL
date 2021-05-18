@@ -31,6 +31,31 @@ let controller = {
       next({ message: err.message, errCode: 400 });
     }
   },
+
+  validateStudentHomeUser(req, res, next) {
+    try {
+      const { id } = req.body;
+      assert(typeof id === "number", "Invalid or missing id");
+
+      next();
+    } catch (err) {
+      next({ message: err.message, errCode: 400 });
+    }
+  },
+
+  studenthomeExist(req, res, next) {
+    const homeId = parseInt(req.params.homeId);
+    logger.info("StudenthomeExist called");
+    db.checkStudenthome(homeId, (result, err) => {
+      if (err) {
+        next(err);
+      }
+      if (result) {
+        next()
+      }
+    });
+  },
+
   // UC-201 Maak studentenhuis
   createStudenthome(req, res, next) {
     logger.info("Studenthome endpoint called");
@@ -121,10 +146,21 @@ let controller = {
   },
 
   // UC-206 Gebruiker toevoegen aan studentenhuis
-  addUserStudenthome(req, res, next) {
+  addStudenthomeUser(req, res, next) {
     logger.info("Studenthome/:homeId/user endpoint called");
-    res.status(200).send(result);
-  },
+    const homeId = parseInt(req.params.homeId);
+    const userId = parseInt(req.body.id)
+    logger.debug(homeId);
+    db.addUser(homeId,userId, (result, err) => {
+      if (err) {
+        next(err);
+      }
+      if (result) {
+        logger.info(result);
+        res.status(200).send({ status: "success", message: "Administrator added with id " + userId });
+      }
+    });
+  }
 };
 
 module.exports = controller;

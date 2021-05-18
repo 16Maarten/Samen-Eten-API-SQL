@@ -15,7 +15,7 @@ let controller = {
     try {
       const {firstname,lastname,email,password,student_Number} = req.body;
       assert(typeof firstname === 'string','Invalid or missing firstname')
-      assert( typeof lastname === 'string','Invalid or missing lastname')
+      assert(typeof lastname === 'string','Invalid or missing lastname')
       assert(typeof student_Number === 'number', 'Invalid or missing student_Number')
       assert(typeof email === 'string', 'Invalid or missing email')
       assert(typeof password === 'string','Invalid or missing password')
@@ -23,11 +23,9 @@ let controller = {
       const validateEmail = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       assert(validateEmail.test(email), "Invalid email");
       next()
-    } catch (ex) {
-      console.log('validateRegister error: ', ex)
-      res
-        .status(402)
-        .json({ message: ex.toString(), datetime: new Date().toISOString() })
+    } catch (err) {
+      console.log('validateRegister error: ', err)
+      next({ message: err.message, errCode: 400 })
     }
   },
 
@@ -40,9 +38,9 @@ let controller = {
       const validateEmail = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       assert(validateEmail.test(email), "Invalid email");
       next()
-    } catch (ex) {
-      console.log('validateRegister error: ', ex)
-      res.status(402).json({ message: ex.toString(), datetime: new Date().toISOString() })
+    } catch (err) {
+      console.log('validateRegister error: ', err)
+      next({ message: err.message, errCode: 400 })
     }
   },
 

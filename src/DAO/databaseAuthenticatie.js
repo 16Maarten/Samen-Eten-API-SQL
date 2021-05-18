@@ -122,9 +122,12 @@ let database = {
                 logger.debug("login", userinfo);
                 callback(userinfo, undefined);
               } else {
-                err2.message = "User not found or password invalid";
+                const err3 = {
+                message:"User not found or password invalid",
+                errCode: 400
+                }
                 logger.info("User not found or password invalid");
-                callback(undefined, err2);
+                callback(undefined, err3);
               }
             }
           }

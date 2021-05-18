@@ -1,47 +1,53 @@
 const logger = require("tracer").colorConsole();
-let lastInsertedIndex = 2;
-let lastInsertedMealIndex = 1;
 const pool = require("./databasePool");
 const config = require("./databaseConfig");
 
 let database = {
   getStudenthome(name, city, callback) {
+    let queryPart = "";
+    let error;
+    if (name && city) {
+      queryPart = "WHERE `Name` = '" + name + "' AND `City` = '" + city + "'";
+      error =
+        "No studentHome was found on name: " + name + " and city: " + city;
+    } else if (name) {
+      queryPart = "WHERE `Name` = '" + name + "'";
+      error = "No studentHome was found on name: " + name;
+    } else if (city) {
+      queryPart = "WHERE `City` = '" + city + "'";
+      error = "No studentHome was found on city: " + city;
+    }
+
+    let sqlQuery = "SELECT * FROM `studenthome` " + queryPart;
+
     pool.getConnection((err, connection) => {
       if (err) {
         err.message = "Database connection failed";
-        err.errCode = 400;
+        err.errCode = 500;
         callback(undefined, err);
       }
       if (connection) {
-        connection.query(
-          "SELECT `Name`,`Address`,`House_Nr`,`Postal_Code`,`City`,`Telephone`FROM `studenthome`WHERE `Name` = ? OR `City`  = ?",
-          [name, city],
-          (err2, results) => {
+        connection.query( sqlQuery,(err2, results) => {
             connection.release();
             if (err2) {
-              err2.message = "getStudenthome failed";
-              err2.errCode = 400;
+              err2 = {
+                message: error,
+                errCode: 404,
+              }
               callback(undefined, err2);
             }
             if (results) {
-              logger.trace("results: ", results);
-              const mappedResults = results.map((item) => {
-                return {
-                  ...item,
-                };
-              });
-              if (mappedResults.length > 0) {
-                callback(mappedResults, undefined);
-              } else {
-                let err3 = {
-                  message: "Studenthome doesn't exist with name: " + name+ " or in the city: " + city,
+              if (!results.length && error) {
+                err2 = {
+                  message: error,
                   errCode: 404,
-                };
-                callback(undefined, err3);
+                }
+                callback(undefined, err2);
+              } else {
+                callback(results, undefined);
               }
-            }
-          }
-        );
+          }  
+      })
       }
     });
   },
@@ -59,22 +65,24 @@ let database = {
             "FROM `studenthome`" +
             "where `ID` = ?",
           [homeId],
-          (err2, results) => {
+          (err2, result) => {
             connection.release();
             if (err2) {
-              logger.info("homeId doesn't exist failed")
-              err2.message = "homeId doesn't exist failed";
-              err2.errCode = 400;
+              logger.info("query failed")
+              err2.message = "query failed";
+              err2.errCode = 500;
               callback(undefined, err2);
             }
-            if (results) {
-              logger.trace("results: ", results);
-              const mappedResults = results.map((item) => {
-                return {
-                  ...item,
-                };
-              });
-              callback(mappedResults, undefined);
+            if (result.length) {
+              logger.trace("results: ", result);
+              callback(...result, undefined);
+            }
+            else{
+              const err3 = {
+                message: "studenthomeId doesn't exist",
+                errCode: 404
+              }
+              callback(undefined, err3);
             }
           }
         );
@@ -185,6 +193,75 @@ let database = {
       }
     });
   },
+
+  addUser(homeId, userId, callback) {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        err.message = "Database connection failed";
+        err.errCode = 500;
+        callback(undefined, err);
+      }
+      if (connection) {
+        connection.query(
+          "INSERT INTO `home_administrators` VALUES (?, ?)",
+          [
+            userId,
+            homeId
+          ],
+          (err2, results) => {
+            connection.release();
+            if (err2) {
+              logger.info("User doesn't exist")
+              err2.message = "User doesn't exist";
+              err2.errCode = 400;
+              callback(undefined, err2);
+            }
+            if (results) {
+              callback(results, undefined);
+            }
+          }
+        );
+      }
+    });
+  },
+
+  checkStudenthome(homeId, callback) {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        err.message = "Database connection failed";
+        err.errCode = 500;
+        callback(undefined, err);
+      }
+      if (connection) {
+        connection.query(
+          "SELECT * FROM `studenthome` WHERE `ID` = ?",
+          [
+            homeId
+          ],
+          (err2, results) => {
+            connection.release();
+            if (err2) {
+              logger.info("query failed")
+              err2.message = "query failed";
+              err2.errCode = 400;
+              callback(undefined, err2);
+            }
+            if (results.length) {
+              callback(results, undefined);
+            } else {
+              logger.info("studenthomeId doesn't exist")
+              const err3 = {
+              message: "studenthomeId doesn't exist",
+              errCode: 400
+              }
+              callback(undefined, err3);
+            }
+          }
+        );
+      }
+    });
+  },
+
 };
 
 module.exports = database;
