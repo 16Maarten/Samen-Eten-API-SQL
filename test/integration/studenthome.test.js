@@ -20,7 +20,7 @@ describe("StudentHome", function () {
     const ADD_HOMES_DB =   "INSERT INTO `studenthome` (`ID`, `Name`, `Address`, `House_Nr`, `UserID`, `Postal_Code`, `Telephone`, `City`) VALUES ('1', 'Princenhage', 'Princenhage', 11, 1,'4706RX','061234567891','Breda'),('2', 'Haagdijk 23', 'Haagdijk', 4, 1, '4706RX','061234567891','Breda')";
     
     describe("StudentHome", function () {
-      before((done) => {
+      beforeEach((done) => {
         logger.info("studenthome tabel clear");
         pool.query(CLEAR_DB, (err, rows, fields) => {
           if (err) {
@@ -33,7 +33,7 @@ describe("StudentHome", function () {
       });
 
 
-      before((done) => {
+      beforeEach((done) => {
         logger.info("studenthome added");
         pool.query(ADD_HOMES_DB, (err, rows, fields) => {
           if (err) {
@@ -220,8 +220,19 @@ describe("StudentHome", function () {
     })
 
 
-    describe("Get studenthome", function () {
-      it("TC-202-1 Toon nul studentenhuizen", (done) => {
+    describe("Get studenthome", function () { 
+      describe("studenthome null", function () {
+        beforeEach((done) => {
+          logger.info("studenthome tabel clear");
+          pool.query(CLEAR_DB, (err, rows, fields) => {
+            if (err) {
+              logger.error(`beforeEach CLEAR error: ${err}`);
+              done(err);
+            } else {
+              done();
+            }
+          });
+      it("TC-202-1 Toon nul studentenhuizen", (done) => {        
         chai
           .request(server)
           .get("/api/studenthome")
@@ -237,6 +248,8 @@ describe("StudentHome", function () {
             done()
           })
       })
+    })
+  }); 
 
       it("TC-202-2 Toon twee studentenhuizen", (done) => {
         chai
