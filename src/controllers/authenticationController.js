@@ -8,6 +8,7 @@ let info = {
   Student: "Maarten de Zwart",
   Studentnummer: 2176137,
   Description: "Ik ben een student op Avans",
+  SonarqubeURL: "https://sonarqube.avans-informatica-breda.nl/dashboard?id=nodejs-samen-eten-server-maarten"
 };
 
 let controller = {
