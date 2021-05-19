@@ -8,7 +8,6 @@
 # image: node:latest
 stages:
   - test
-  - analysis
   - production
 #
 # Global variables
@@ -47,14 +46,8 @@ testing:
     - npm install --no-optional
   script:
     - npm run coverage # also runs tests, see package.json
-
-Sonar analysis:
-  stage: analysis
-  image: node:latest
-  before_script:
-    - npm install --no-optional
-  script:
     - npm run sonar
+    
 #
 # Deploy to Heroku
 # DPL is a deploy tool made for continuous deployment that’s developed and used
